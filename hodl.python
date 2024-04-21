@@ -27,7 +27,6 @@ def send_transaction(private_key, to_address, nonce):
         'gas': 155347,
         'gasPrice': w3.to_wei(1, 'gwei'),
         'nonce': nonce,
-        'nonce': nonce,
         # data里面放16进制数据，小狐狸钱包弹出签名后，点16进制，复制进来即可
         "data" :"",
         'chainId': bsc_chain_id
