@@ -1,0 +1,58 @@
+import requests
+from web3 import Web3
+from eth_account import Account
+import  time
+
+# Constants
+tx_count = 100  # 一次打几笔交易
+frequency = 5  # 几秒跑一次，单位为秒
+bsc_endpoint = "https://bsc-dataseed.binance.org"
+bsc_chain_id = 56  # Binance Smart Chain的chain id
+
+# 初始化Web3客户端
+w3 = Web3(Web3.HTTPProvider(bsc_endpoint))
+
+# 这里放入自己的私钥
+private_keys = [
+    ''
+]
+
+
+# 发送交易
+def send_transaction(private_key, to_address, nonce):
+    account = Account.from_key(private_key)
+    transaction = {
+        'to': to_address,
+        'value': w3.to_wei(0.00182, 'ether'),
+        'gas': 155347,
+        'gasPrice': w3.to_wei(1, 'gwei'),
+        'nonce': nonce,
+        'nonce': nonce,
+        # data里面放16进制数据，小狐狸钱包弹出签名后，点16进制，复制进来即可
+        "data" :"",
+        'chainId': bsc_chain_id
+    }
+    signed_txn = w3.eth.account.sign_transaction(transaction, private_key)
+    txn_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+    return txn_hash.hex()
+
+
+# 主函数
+def main():
+    for private_key in private_keys:
+        if not private_key.startswith("0x"):
+            private_key = f"0x{private_key}"
+        account = Account.from_key(private_key)
+        address = account.address
+        nonce = w3.eth.get_transaction_count(address)
+        print(f"Address: {address}, nonce: {nonce}")
+
+        for i in range(tx_count):
+            txn_hash = send_transaction(private_key, "0x1832e00DfF829547E1F564f92401C2886F3236b4", nonce + i)
+            print(f"Transaction {i + 1} sent: {txn_hash}")
+
+
+if __name__ == "__main__":
+    while True:
+        main()
+        time.sleep(frequency)
